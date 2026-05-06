@@ -1,0 +1,25 @@
+[project]
+name = "shorty"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "black==25.1.0",
+    "fastapi==0.116.1",
+    "httpx==0.28.1",
+    "loguru==0.7.3",
+    "motor==3.7.1",
+    "passlib[bcrypt]==1.7.4",
+    "pydantic==2.11.7",
+    "pydantic-settings==2.10.1",
+    "pymongo==4.14.1",
+    "pytest==8.4.1",
+    "pytest-asyncio==1.1.0",
+    "python-dotenv==1.1.1",
+    "python-jose==3.5.0",
+    "redis==6.4.0",
+    "ruff==0.12.8",
+    "tenacity==9.1.2",
+    "uvicorn[standard]==0.35.0",
+]
