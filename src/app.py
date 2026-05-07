@@ -20,11 +20,10 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.app_name}")
 
     await connect_to_mongo()
-
-    yield
-
-    await close_mongo_connection()
-
+    try:
+        yield
+    finally:
+        await close_mongo_connection()
     logger.info(f"Shutting down {settings.app_name}")
 
 
