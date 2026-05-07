@@ -6,9 +6,9 @@ from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.db_client import connect_to_mongo, close_mongo_connection
-
-
 from src.common.config.settings import get_settings
+
+from src.domains.health_check.routes import router as health_check_router
 
 settings = get_settings()
 
@@ -54,6 +54,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(
+    health_check_router,
+    prefix="/api/v1"
+)
+
 
 if __name__ == "__main__":
     uvicorn.run(

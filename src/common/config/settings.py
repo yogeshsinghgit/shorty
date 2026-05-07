@@ -44,6 +44,14 @@ class Settings(BaseSettings):
     # Security settings
     secret_key: str = Field(validation_alias="SECRET_KEY")
 
+    blocked_domains: List[str] = Field(
+        default=[
+            "localhost",
+            "127.0.0.1",
+        ],
+        validation_alias="BLOCKED_DOMAINS"
+    )
+
     access_token_expire_minutes: int = Field(
         default=30,
         validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES",
