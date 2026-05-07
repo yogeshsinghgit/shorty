@@ -1,15 +1,31 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
+from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
+
+from src.database.db_client import connect_to_mongo, close_mongo_connection
 
 
 from src.common.config.settings import get_settings
-
 
 settings = get_settings()
 
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+
+    logger.info(f"Starting {settings.app_name}")
+
+    await connect_to_mongo()
+
+    yield
+
+    await close_mongo_connection()
+
+    logger.info(f"Shutting down {settings.app_name}")
 
 
 app = FastAPI(
@@ -29,7 +45,7 @@ app = FastAPI(
         "showCommonExtensions": True,
         "tryItOutEnabled": True,
     },
-    # lifespan=lifespan,
+    lifespan=lifespan,
 )
 
 app.add_middleware(

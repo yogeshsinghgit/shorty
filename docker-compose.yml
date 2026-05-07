@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+
+  shorty-api:
+    build: .
+    container_name: shorty-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - mongodb
+      - redis
+    env_file:
+      - .env
+
+  mongodb:
+    image: mongo:8.0
+    container_name: shorty-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:8.2
+    container_name: shorty-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongodb_data:

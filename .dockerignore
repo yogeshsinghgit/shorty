@@ -1,0 +1,27 @@
+# Python virtual environments
+.venv
+venv
+env
+
+
+# Logs
+*.log
+
+# OS / IDE stuff
+.DS_Store
+**/.DS_Store**
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Tests output or coverage
+.coverage
+htmlcov/
+*.pytest_cache/
+
+# Other common stuff
+node_modules/
+dist/
+build/
+*.egg-info/
