@@ -68,6 +68,9 @@ class Settings(BaseSettings):
     @property
     def mongodb_url(self) -> str:
         """Construct MongoDB connection URL from components."""
+        if not self.mongodb_user_name or not self.mongodb_password:
+            return f"mongodb://{self.mongodb_host}:{self.mongodb_port}/{self.mongodb_database}"
+
         escaped_user = quote_plus(self.mongodb_user_name)
         escaped_password = quote_plus(self.mongodb_password)
         return (

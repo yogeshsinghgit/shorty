@@ -13,6 +13,7 @@ async def connect_to_mongo():
     global client
 
     try:
+        # Use the simple test URL (no auth)
         client = AsyncIOMotorClient(settings.mongo_db_test_url)
 
         await client.admin.command("ping")

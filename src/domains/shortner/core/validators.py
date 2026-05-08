@@ -1,5 +1,6 @@
 import ipaddress
 import re
+import anyio.to_thread
 import socket
 from dataclasses import dataclass
 from urllib.parse import urlparse
@@ -199,7 +200,7 @@ def _check_port(parsed) -> ValidationResult:
 # Public API
 # ---------------------------------------------------------------------------
 
-def validate_url(url: str, *, resolve_dns: bool = True) -> ValidationResult:
+async def validate_url(url: str, *, resolve_dns: bool = True) -> ValidationResult:
     """
     Run all validation checks against *url* and return a ValidationResult.
 
@@ -245,7 +246,8 @@ def validate_url(url: str, *, resolve_dns: bool = True) -> ValidationResult:
 
     # --- network check (optional, most expensive) ---
     if resolve_dns:
-        result = _check_dns_resolves(parsed)
+        # Run blocking DNS lookup in a thread pool to avoid starving the event loop
+        result = await anyio.to_thread.run_sync(_check_dns_resolves, parsed)
         if not result.valid:
             return result
 
@@ -253,6 +255,6 @@ def validate_url(url: str, *, resolve_dns: bool = True) -> ValidationResult:
 
 
 # Convenience wrapper that matches the original boolean signature
-def validate_url_security(url: str) -> bool:
+async def validate_url_security(url: str) -> bool:
     """Drop-in replacement for the original function (returns bool)."""
-    return validate_url(url).valid
+    return (await validate_url(url)).valid

@@ -6,9 +6,12 @@ from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.db_client import connect_to_mongo, close_mongo_connection
+from src.database.indexes import create_indexes
 from src.common.config.settings import get_settings
 
 from src.domains.health_check.routes import router as health_check_router
+from src.domains.shortner.routes import router as shortner_router
+
 
 settings = get_settings()
 
@@ -20,6 +23,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.app_name}")
 
     await connect_to_mongo()
+    await create_indexes()
     try:
         yield
     finally:
@@ -60,6 +64,12 @@ app.include_router(
     health_check_router,
     prefix="/api/v1"
 )
+
+app.include_router(
+    shortner_router,
+    prefix="/api/v1"
+)
+
 
 
 if __name__ == "__main__":

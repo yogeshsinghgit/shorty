@@ -10,19 +10,9 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - mongodb
       - redis
     env_file:
       - .env
-
-  mongodb:
-    image: mongo:8.0
-    container_name: shorty-mongodb
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
 
   redis:
     image: redis:8.2
@@ -31,5 +21,4 @@ services:
     ports:
       - "6379:6379"
 
-volumes:
-  mongodb_data:
+# volumes:

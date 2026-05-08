@@ -1,6 +1,6 @@
 from loguru import logger
 from typing import Optional
-from uuid import UUID
+from bson import ObjectId
 import threading
 
 from src.database.db_client import get_database
@@ -9,9 +9,9 @@ from src.database.shortner.schema import ShortURLSchema
 
 class ShortURLRepository:
     def __init__(self):
-        self.collection = get_database().shortner.urls
+        self.collection = get_database().urls
 
-    async def create_url(self, url_schema: ShortURLSchema) -> Optional[UUID]:
+    async def create_url(self, url_schema: ShortURLSchema) -> Optional[ObjectId]:
         """
         Create a new URL shortner.
         """
@@ -19,9 +19,10 @@ class ShortURLRepository:
         try:
             logger.info(f"Creating URL shortner: {url_schema}")
 
-            result = await self.collection.insert_one(url_schema.model_dump())
+            # Use by_alias=True to ensure 'id' is saved as '_id' in MongoDB
+            result = await self.collection.insert_one(url_schema.model_dump(by_alias=True))
 
-            logger.info(f"URL shortner created: {result}")
+            logger.info(f"URL shortner created with ID: {result.inserted_id}")
 
             return result.inserted_id
         
@@ -31,9 +32,10 @@ class ShortURLRepository:
             raise
 
 
-    async def find_url_by_short_code(self, short_code: str) -> Optional[ShortURLSchema]:
+    async def find_url_by_short_code(self, short_code: str) -> Optional[dict]:
         """
         Find a URL shortner by short code.
+        Returns a dictionary from MongoDB.
         """
 
         try:
@@ -77,7 +79,10 @@ class ShortURLRepository:
         try:
             logger.info(f"Updating URL shortner: {short_code}")
 
-            result = await self.collection.update_one({"short_code": short_code}, {"$set": url_schema.model_dump()})
+            result = await self.collection.update_one(
+                {"short_code": short_code}, 
+                {"$set": url_schema.model_dump(by_alias=True)}
+            )
 
             logger.info(f"URL shortner updated: {result}")
 
@@ -97,7 +102,7 @@ class ShortURLRepository:
         try:
             logger.info(f"Activating URL shortner: {short_code}")
 
-            result = await self.collection.update_one({"short_code": short_code}, {"$set": {"is_active": True}})
+            result = await self.collection.update_one({"short_code": short_code}, {"$set": {"is_deleted": False}})
 
             logger.info(f"URL shortner activated: {result}")
 
@@ -149,12 +154,12 @@ def get_short_url_repository() -> ShortURLRepository:
 
 
 # Convenience functions for direct access
-async def create_url(url_schema: ShortURLSchema) -> Optional[UUID]:
+async def create_url(url_schema: ShortURLSchema) -> Optional[ObjectId]:
     """Create a new URL shortner."""
     return await get_short_url_repository().create_url(url_schema)
 
 
-async def find_url_by_short_code(short_code: str) -> Optional[ShortURLSchema]:
+async def find_url_by_short_code(short_code: str) -> Optional[dict]:
     """Find a URL shortner by short code."""
     return await get_short_url_repository().find_url_by_short_code(short_code)
 
